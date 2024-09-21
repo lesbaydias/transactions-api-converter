@@ -1,0 +1,58 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: Dias
+      changes:
+        - createTable:
+            tableName: limit
+            columns:
+              - column:
+                  name: limit_id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: limit_sum
+                  type: DECIMAL(19, 2)
+              - column:
+                  name: limit_currency_short_name
+                  type: VARCHAR(10)
+              - column:
+                  name: limit_date_time
+                  type: TIMESTAMP
+
+  - changeSet:
+      id: 2
+      author: Dias
+      changes:
+        - createTable:
+            tableName: transaction
+            columns:
+              - column:
+                  name: transaction_id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: account_from
+                  type: VARCHAR(50)
+              - column:
+                  name: account_to
+                  type: VARCHAR(50)
+              - column:
+                  name: currency_short_name
+                  type: VARCHAR(10)
+              - column:
+                  name: sum
+                  type: DECIMAL(19, 2)
+              - column:
+                  name: expense_category
+                  type: VARCHAR(50)
+              - column:
+                  name: date_time
+                  type: TIMESTAMP
+              - column:
+                  name: limit_exceeded
+                  type: BOOLEAN
