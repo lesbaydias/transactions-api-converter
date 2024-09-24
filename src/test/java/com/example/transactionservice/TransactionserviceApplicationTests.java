@@ -22,7 +22,7 @@ class TransactionserviceApplicationTests {
 		limit.setLimitCurrencyShortName("USD");
 		limit.setLimitSum(new BigDecimal("1000"));
 
-		Limit savedLimit = limitService.setNewLimit(limit);
+		Limit savedLimit = limitService.setNewLimit(limit.getLimitSum());
 
 		assertNotNull(savedLimit);
 		assertEquals("USD", savedLimit.getLimitCurrencyShortName());

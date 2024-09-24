@@ -25,3 +25,7 @@ spring:
     compatibility-verifier:
       enabled: false
 
+
+fixer:
+  api:
+    key: 85ef2089fc68eb68f6319c7966457d86

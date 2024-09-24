@@ -13,24 +13,27 @@ import java.util.Optional;
 @Service
 public class LimitService {
 
-    @Autowired
-    private LimitRepository limitRepository;
+    private final LimitRepository limitRepository;
 
-    public Limit setNewLimit(Limit limit) {
+    @Autowired
+    public LimitService(LimitRepository limitRepository) {
+        this.limitRepository = limitRepository;
+    }
+
+    public BigDecimal getCurrentLimit() {
+        Limit currentLimit = limitRepository.findTopByOrderByLimitDateTimeDesc();
+        return currentLimit != null ? currentLimit.getLimitSum() : new BigDecimal("1000"); // Дефолтный лимит $1000
+    }
+
+    public Limit setNewLimit(BigDecimal newLimit) {
+        Limit limit = new Limit();
+        limit.setLimitSum(newLimit);
         limit.setLimitDateTime(LocalDateTime.now());
+        limit.setLimitCurrencyShortName("USD");
         return limitRepository.save(limit);
     }
 
     public List<Limit> getAllLimits() {
         return limitRepository.findAll();
-    }
-
-    public boolean checkLimitExceeded(BigDecimal amount, String currency) {
-        Optional<Limit> limitOpt = limitRepository.findLimitByLimitCurrencyShortName(currency);
-        if (limitOpt.isPresent()) {
-            Limit limit = limitOpt.get();
-            return amount.compareTo(limit.getLimitSum()) > 0;
-        }
-        return false;
     }
 }

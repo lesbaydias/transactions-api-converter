@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @Setter
+@Table(name = "\"limit\"")
 public class Limit {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
