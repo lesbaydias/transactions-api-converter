@@ -1,5 +1,7 @@
 package com.example.transactionservice.service;
 
+import com.example.transactionservice.enums.TypesOfError;
+import com.example.transactionservice.exception.CustomException;
 import com.example.transactionservice.model.Limit;
 import com.example.transactionservice.model.Transaction;
 import com.example.transactionservice.repository.LimitRepository;
@@ -9,7 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -28,17 +29,22 @@ public class LimitService {
 
         if (transactions.isEmpty()) return BigDecimal.ZERO;
 
-        for (Transaction transaction : transactions) {
-            log.info(limit+"     ref  "+transaction.getSumInUSD());
+        for (Transaction transaction : transactions)
             limit = limit.add(transaction.getSumInUSD());
-        }
 
         return limit;
 
     }
 
     public Limit setNewLimit(BigDecimal newLimit) {
-        return limitRepository.save(Limit.builder()
+        if (newLimit == null || newLimit.compareTo(BigDecimal.ZERO) <= 0)
+            throw new CustomException(
+                    TypesOfError.LIMIT_MUST_BE_GREATER_THAN_ZERO.getMessage(),
+                    TypesOfError.LIMIT_MUST_BE_GREATER_THAN_ZERO.getStatus()
+            );
+
+        return limitRepository.save(
+                Limit.builder()
                 .limitDateTime(LocalDateTime.now())
                 .limitSum(newLimit)
                 .limitCurrencyShortName("USD")
@@ -55,6 +61,12 @@ public class LimitService {
     }
 
     public List<Limit> getLimits() {
-        return limitRepository.findAll();
+        List<Limit> limits = limitRepository.findAll();
+        if(limits.isEmpty())
+            throw new CustomException(
+                TypesOfError.LIMIT_NOT_FOUND.getMessage(),
+                TypesOfError.LIMIT_NOT_FOUND.getStatus()
+        );
+        return limits;
     }
 }

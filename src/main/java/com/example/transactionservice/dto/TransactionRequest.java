@@ -13,9 +13,14 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TransactionRequest {
+
     private Long accountFrom;
+
     private Long accountTo;
+
     private String currencyShortName;
+
     private BigDecimal sum;
+
     private ExpenseCategoryType expenseCategoryType;
 }

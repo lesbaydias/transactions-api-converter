@@ -12,12 +12,15 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "\"limit\"")
+@Table(name = "limits")
 public class Limit {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long limitId;
+
     private BigDecimal limitSum;
+
     private LocalDateTime limitDateTime;
+
     private String limitCurrencyShortName;
 }

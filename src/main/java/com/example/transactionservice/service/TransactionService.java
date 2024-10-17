@@ -2,6 +2,8 @@ package com.example.transactionservice.service;
 
 import com.example.transactionservice.dto.TransactionRequest;
 import com.example.transactionservice.dto.TransactionResponse;
+import com.example.transactionservice.enums.TypesOfError;
+import com.example.transactionservice.exception.CustomException;
 import com.example.transactionservice.mapper.TransactionMapper;
 import com.example.transactionservice.model.Limit;
 import com.example.transactionservice.model.Transaction;
@@ -9,16 +11,13 @@ import com.example.transactionservice.repository.TransactionRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -31,45 +30,65 @@ public class TransactionService {
 
     @Transactional
     public TransactionResponse processTransaction(TransactionRequest transactionRequest) {
-        BigDecimal currentLimit = limitService.getCurrentLimits();
+        BigDecimal currentLimitSum = limitService.getCurrentLimits();
         Limit limit = limitService.getCurrentLimit();
+        BigDecimal transactionSumInUSD = convertToUSD(transactionRequest);
 
-        boolean limitExceeded = false;
-        BigDecimal sumInUSD = convertToUSD(transactionRequest);
+        boolean isLimitExceeded = isLimitExceeded(transactionSumInUSD, currentLimitSum, limit);
 
-        log.info(currentLimit.toString());
-
-        if (limit != null && sumInUSD.add(currentLimit).compareTo(limit.getLimitSum()) > 0)
-            limitExceeded = true;
-
-        Transaction transaction = transactionMapper.toEntity(transactionRequest);
-
-        transaction.setLimitExceeded(limitExceeded);
-        transaction.setSumInUSD(sumInUSD);
-        transaction.setDateTime(LocalDateTime.now());
+        Transaction transaction = createTransaction(transactionRequest, transactionSumInUSD, isLimitExceeded);
 
         transactionRepository.save(transaction);
         return transactionMapper.toResponse(transaction);
     }
 
-
     private BigDecimal convertToUSD(TransactionRequest transactionRequest) {
-        if (!transactionRequest.getCurrencyShortName().equalsIgnoreCase("USD"))
-            return transactionRequest.getSum()
-                    .divide
-                            (currencyService.getCurrencyRate
-                                    (transactionRequest.getCurrencyShortName()+"/USD"), RoundingMode.HALF_UP);
+        String currency = transactionRequest.getCurrencyShortName();
 
+        if (!currency.equalsIgnoreCase("USD")) {
+            BigDecimal conversionRate = currencyService.getCurrencyRate(currency + "/USD");
+            return transactionRequest.getSum().divide(conversionRate, RoundingMode.HALF_UP);
+        }
 
         return transactionRequest.getSum();
     }
 
+    private boolean isLimitExceeded(BigDecimal transactionSumInUSD, BigDecimal currentLimitSum, Limit limit) {
+        if (limit == null)
+            return false;
+
+        return transactionSumInUSD.add(currentLimitSum).compareTo(limit.getLimitSum()) > 0;
+    }
+
+    private Transaction createTransaction(TransactionRequest transactionRequest, BigDecimal sumInUSD, boolean limitExceeded) {
+        Transaction transaction = transactionMapper.toEntity(transactionRequest);
+        transaction.setSumInUSD(sumInUSD);
+        transaction.setLimitExceeded(limitExceeded);
+        transaction.setDateTime(LocalDateTime.now());
+        return transaction;
+    }
+
 
     public List<Transaction> getAllTransactions() {
-        return transactionRepository.findAll();
+        List<Transaction> transactions = transactionRepository.findAll();
+        if (transactions.isEmpty())
+            throw new CustomException(
+                TypesOfError.TRANSACTION_NOT_FOUND.getMessage(),
+                TypesOfError.TRANSACTION_NOT_FOUND.getStatus()
+        );
+        return transactions;
     }
 
     public List<Transaction> getExceededTransactions() {
-        return transactionRepository.findByLimitExceeded(true);
+        List<Transaction> exceededTransactions = transactionRepository.findByLimitExceeded(true);
+
+        if (exceededTransactions.isEmpty()) {
+            throw new CustomException(
+                    TypesOfError.NOT_FOUND_EXCEEDED_TRANSACTIONS.getMessage(),
+                    TypesOfError.NOT_FOUND_EXCEEDED_TRANSACTIONS.getStatus()
+            );
+        }
+
+        return exceededTransactions;
     }
 }

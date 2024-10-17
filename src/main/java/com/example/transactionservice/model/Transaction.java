@@ -2,20 +2,17 @@ package com.example.transactionservice.model;
 
 import com.example.transactionservice.enums.ExpenseCategoryType;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "transactions")
-@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
+@Setter
 public class Transaction {
 
     @Id
@@ -37,6 +34,7 @@ public class Transaction {
     @Column(name = "sumInUSD", nullable = false)
     private BigDecimal sumInUSD;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "expenseCategoryType", nullable = false)
     private ExpenseCategoryType expenseCategoryType;
 
