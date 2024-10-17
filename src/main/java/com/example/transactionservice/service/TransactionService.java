@@ -1,58 +1,69 @@
 package com.example.transactionservice.service;
 
+import com.example.transactionservice.dto.TransactionRequest;
+import com.example.transactionservice.dto.TransactionResponse;
+import com.example.transactionservice.mapper.TransactionMapper;
 import com.example.transactionservice.model.Limit;
 import com.example.transactionservice.model.Transaction;
 import com.example.transactionservice.repository.TransactionRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
+@Slf4j
+@RequiredArgsConstructor
 public class TransactionService {
+    private final TransactionRepository transactionRepository;
+    private final LimitService limitService;
+    private final CurrencyService currencyService;
+    private final TransactionMapper transactionMapper;
 
-    @Autowired
-    private TransactionRepository transactionRepository;
-
-    @Autowired
-    private LimitService limitService;
-
-    @Autowired
-    private CurrencyService currencyService;
-
-    public Transaction processTransaction(Transaction transaction) {
-        BigDecimal sumInUSD = convertToUSD(transaction);
-        BigDecimal currentLimit = limitService.getCurrentLimit();
-
-        List<Limit> limits = limitService.getAllLimits();
-        LocalDate transactionDate = transaction.getDateTime().toLocalDate();
+    @Transactional
+    public TransactionResponse processTransaction(TransactionRequest transactionRequest) {
+        BigDecimal currentLimit = limitService.getCurrentLimits();
+        Limit limit = limitService.getCurrentLimit();
 
         boolean limitExceeded = false;
+        BigDecimal sumInUSD = convertToUSD(transactionRequest);
 
-        for (Limit limit : limits) {
-            if (limit.getLimitDateTime().toLocalDate().equals(transactionDate) &&
-                    sumInUSD.compareTo(limit.getLimitSum()) > 0) {
-                limitExceeded = true;
-                break;
-            }
-        }
+        log.info(currentLimit.toString());
 
-        transaction.setCurrencyShortName("USD");
-        transaction.setSum(sumInUSD);
+        if (limit != null && sumInUSD.add(currentLimit).compareTo(limit.getLimitSum()) > 0)
+            limitExceeded = true;
+
+        Transaction transaction = transactionMapper.toEntity(transactionRequest);
+
         transaction.setLimitExceeded(limitExceeded);
-        return transactionRepository.save(transaction);
+        transaction.setSumInUSD(sumInUSD);
+        transaction.setDateTime(LocalDateTime.now());
+
+        transactionRepository.save(transaction);
+        return transactionMapper.toResponse(transaction);
     }
 
 
-    private BigDecimal convertToUSD(Transaction transaction) {
-        if (!transaction.getCurrencyShortName().equalsIgnoreCase("USD"))
-            return currencyService.getCurrencyRate(transaction.getCurrencyShortName() + "/USD", transaction.getDateTime().toLocalDate());
+    private BigDecimal convertToUSD(TransactionRequest transactionRequest) {
+        if (!transactionRequest.getCurrencyShortName().equalsIgnoreCase("USD"))
+            return transactionRequest.getSum()
+                    .divide
+                            (currencyService.getCurrencyRate
+                                    (transactionRequest.getCurrencyShortName()+"/USD"), RoundingMode.HALF_UP);
 
-        return transaction.getSum();
+
+        return transactionRequest.getSum();
     }
+
 
     public List<Transaction> getAllTransactions() {
         return transactionRepository.findAll();
