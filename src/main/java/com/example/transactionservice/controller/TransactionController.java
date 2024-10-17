@@ -10,7 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 import java.util.List;
 
 
@@ -24,7 +23,7 @@ public class TransactionController {
 
     @PostMapping("/create")
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<TransactionResponse> createTransaction(@Valid @RequestBody TransactionRequest transactionRequest) {
+    public ResponseEntity<TransactionResponse> createTransaction(@RequestBody TransactionRequest transactionRequest) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(transactionService.processTransaction(transactionRequest));
     }

@@ -1,7 +1,5 @@
 package com.example.transactionservice.controller;
 
-import com.example.transactionservice.enums.TypesOfError;
-import com.example.transactionservice.exception.CustomException;
 import com.example.transactionservice.model.Limit;
 import com.example.transactionservice.service.LimitService;
 import lombok.RequiredArgsConstructor;

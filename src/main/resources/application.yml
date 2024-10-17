@@ -1,6 +1,10 @@
 spring:
   application:
     name: transactionservice
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+    enabled: true
+
   datasource:
     url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:transactions_db}
     username: ${DB_USER:username}
@@ -16,6 +20,7 @@ spring:
     show-sql: ${JPA_SHOW_SQL:true}
   main:
     allow-circular-references: true
+
 
 
 
