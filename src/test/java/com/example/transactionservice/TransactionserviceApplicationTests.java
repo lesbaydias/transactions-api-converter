@@ -22,8 +22,8 @@ class TransactionserviceApplicationTests {
 
 		String requestJson = """
             {
-                "accountFrom": 1,
-                "accountTo": 2,
+                "accountFrom": 1111111111,
+                "accountTo": 2222222222,
                 "currencyShortName": "KZT",
                 "sum": 150000.00,
                 "expenseCategoryType": "PRODUCT"
