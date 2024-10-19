@@ -51,7 +51,7 @@
     "sum": 150000.00,
     "expenseCategoryType": "PRODUCT"
 }
-
+```
 
 
 ## ОБЯЗАТЕЛЬНО:
