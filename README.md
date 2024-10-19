@@ -74,12 +74,9 @@ Sets a new monthly spending limit.
 ## Database Schema
 The application uses PostgreSQL and includes the following tables:
 
-##### limits: 
-Stores monthly spending limits with the date they were set.
-##### transactions: 
-Stores all transactions, including a flag (limit_exceeded) to indicate whether a transaction has exceeded the monthly limit.
-##### currency_rate: 
-Caches exchange rates (KZT/USD, RUB/USD) to avoid frequent API calls.
+- limits: Stores monthly spending limits with the date they were set.
+- transactions: Stores all transactions, including a flag (limit_exceeded) to indicate whether a transaction has exceeded the monthly limit.
+- currency_rate: Caches exchange rates (KZT/USD, RUB/USD) to avoid frequent API calls.
 
 #### Flyway is used for managing database migrations.
 
