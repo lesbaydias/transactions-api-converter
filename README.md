@@ -22,10 +22,14 @@
 ### 2. Запуск с использованием Docker Compose
 
 1. Клонируйте репозиторий:
+
    git clone https://github.com/lesbaydias/transactions-api-converter.git
+
    cd transactions-api-converter
 3. Соберите и запустите контейнеры с помощью Docker Compose:
+
    docker-compose up --build
+
 
    Эта команда:
    - Сначала собирает образ вашего Java приложения.
