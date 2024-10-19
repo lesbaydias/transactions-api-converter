@@ -42,13 +42,14 @@
 Создайте транзакцию: POST /api/transactions/create
 
 В разделе Postman "Body"
+   ```bash
 {
         "accountFrom": 1111111111,
         "accountTo": 2222222222,
         "currencyShortName": "KZT",
         "sum": 150000.00,
         "expenseCategoryType": "PRODUCT"
-    }
+}
 
 
 ## ОБЯЗАТЕЛЬНО:
