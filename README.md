@@ -37,9 +37,9 @@
   - Сначала собирает образ вашего Java приложения.
   - Запускает сервис transaction-service и базу данных PostgreSQL
 
-# API Endpoints
-## API транзакций
-Создайте транзакцию: POST /api/transactions/create
+## API Endpoints
+### API транзакций
+Создайте транзакцию: POST http://localhost:8080/api/transactions/create
 
 В разделе Postman "Body"
 
@@ -59,23 +59,57 @@
 
 
 ## Client API
-1. Get Transactions Exceeding Limit: GET /api/limits/exceeded
+1. Get Transactions Exceeding Limit: GET http://localhost:8080/api/limits/exceeded
 
 Returns transactions that have exceeded the set monthly limit.
 
-2. Set New Monthly Limit: POST /api/limits/set
-   ```bash
+2. Set New Monthly Limit: POST http://localhost:8080/api/limits/set
+```bash
 {
-    "limitSum": 2000.00
+    "limitSum": 1000.00
 }
+```
 Sets a new monthly spending limit.
 
 ## Database Schema
 The application uses PostgreSQL and includes the following tables:
 
-limits: Stores monthly spending limits with the date they were set.
-transactions: Stores all transactions, including a flag (limit_exceeded) to indicate whether a transaction has exceeded the monthly limit.
-currency_rate: Caches exchange rates (KZT/USD, RUB/USD) to avoid frequent API calls.
+##### limits: 
+Stores monthly spending limits with the date they were set.
+##### transactions: 
+Stores all transactions, including a flag (limit_exceeded) to indicate whether a transaction has exceeded the monthly limit.
+##### currency_rate: 
+Caches exchange rates (KZT/USD, RUB/USD) to avoid frequent API calls.
+
+#### Flyway is used for managing database migrations.
+
+## Docker and Deployment
+### Docker
+A Dockerfile is provided to containerize the application.
+
+1. Build Docker image:
+```bash
+docker build -t transactionservice .
+```
+2. Run the Docker container:
+```bash
+docker run -p 8080:8080 transactionservice
+```
+
+### Docker Compose
+A docker-compose.yml file is provided for running the application along with PostgreSQL.
+
+1. Start services with Docker Compose:
+```bash
+docker-compose up --build
+```
+
+## Scheduling and Limit Reset
+The microservice uses Spring's @EnableScheduling annotation to automatically reset the monthly limit on the 1st of each month.
+
+## External API Integration
+This service uses the Fixer API for retrieving the exchange rates of KZT/USD and RUB/USD pairs. The rates are saved in the database and used for currency conversions.
+
 
 ## Объяснение решений
     - Выбор монолитной структуры: Мы решили использовать монолитную архитектуру для упрощения разработки и деплоя на начальных этапах проекта. Это упрощает взаимодействие между компонентами и позволяет быстрее разрабатывать и тестировать функционал.
