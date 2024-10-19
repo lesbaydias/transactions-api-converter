@@ -22,12 +22,12 @@
 ### 2. Запуск с использованием Docker Compose
 
 1. Клонируйте репозиторий:
-
+   ```bash
    git clone https://github.com/lesbaydias/transactions-api-converter.git
-
    cd transactions-api-converter
+   
 3. Соберите и запустите контейнеры с помощью Docker Compose:
-
+   ```bash
    docker-compose up --build
 
 
