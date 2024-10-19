@@ -24,7 +24,7 @@
 1. Клонируйте репозиторий:
    git clone https://github.com/lesbaydias/transactions-api-converter.git
    cd transactions-api-converter
-2. Соберите и запустите контейнеры с помощью Docker Compose:
+3. Соберите и запустите контейнеры с помощью Docker Compose:
    docker-compose up --build
 
    Эта команда:
