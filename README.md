@@ -58,55 +58,54 @@
 Если текущая дата выходная дата, то сервер должен отправить последнюю актуальную информацию о валюте. А если таковой информации не имеется то должен срабатывать Exception.
 
 
-## Client API
-1. Get Transactions Exceeding Limit: GET http://localhost:8080/api/limits/exceeded
+## API-клиент
+1. Получить транзакции, превышающие лимит: GET http://localhost:8080/api/limits/exceeded
 
-Returns transactions that have exceeded the set monthly limit.
+Возвращает транзакции, превысившие установленный месячный лимит.
 
-2. Set New Monthly Limit: POST http://localhost:8080/api/limits/set
+2.Установить новый месячный лимит: POST http://localhost:8080/api/limits/set
 ```bash
 {
     "limitSum": 1000.00
 }
 ```
-Sets a new monthly spending limit.
+Устанавливает новый ежемесячный лимит расходов.
 
-## Database Schema
-The application uses PostgreSQL and includes the following tables:
+## Схема базы данных
+Приложение использует PostgreSQL и включает следующие таблицы:
 
-- limits: Stores monthly spending limits with the date they were set.
-- transactions: Stores all transactions, including a flag (limit_exceeded) to indicate whether a transaction has exceeded the monthly limit.
-- currency_rate: Caches exchange rates (KZT/USD, RUB/USD) to avoid frequent API calls.
+- лимиты: сохраняет ежемесячные лимиты расходов с датой их установки.
+- транзакции: хранит все транзакции, включая флаг (limit_exceeded), указывающий, превысила ли транзакция месячный лимит.
+- currency_rate: кэширует обменные курсы (KZT/USD, RUB/USD), чтобы избежать частых вызовов API.
 
-#### Flyway is used for managing database migrations.
+#### Flyway используется для управления миграцией баз данных.
 
 ## Docker and Deployment
 ### Docker
-A Dockerfile is provided to containerize the application.
+Для контейнеризации приложения предоставляется Dockerfile.
 
-1. Build Docker image:
+1. Сборка образа Docker:
 ```bash
 docker build -t transactionservice .
 ```
-2. Run the Docker container:
+2. Запустите Docker-контейнер:
 ```bash
 docker run -p 8080:8080 transactionservice
 ```
 
 ### Docker Compose
-A docker-compose.yml file is provided for running the application along with PostgreSQL.
+Файл docker-compose.yml предоставляется для запуска приложения вместе с PostgreSQL.
 
-1. Start services with Docker Compose:
+1. Запустите службы с помощью Docker Compose:
 ```bash
 docker-compose up --build
 ```
 
-## Scheduling and Limit Reset
-The microservice uses Spring's @EnableScheduling annotation to automatically reset the monthly limit on the 1st of each month.
+## Планирование и сброс лимитов
+Микросервис использует аннотацию @EnableScheduling Spring для автоматического сброса месячного лимита 1-го числа каждого месяца.
 
-## External API Integration
-This service uses the Fixer API for retrieving the exchange rates of KZT/USD and RUB/USD pairs. The rates are saved in the database and used for currency conversions.
-
+## Интеграция внешнего API
+Этот сервис использует API Fixer для получения обменных курсов пар KZT/USD и RUB/USD. Курсы сохраняются в базе данных и используются для конвертации валют.
 
 ## Объяснение решений
     - Выбор монолитной структуры: Мы решили использовать монолитную архитектуру для упрощения разработки и деплоя на начальных этапах проекта. Это упрощает взаимодействие между компонентами и позволяет быстрее разрабатывать и тестировать функционал.
