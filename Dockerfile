@@ -1,17 +1,16 @@
-FROM adoptopenjdk/openjdk16:alpine
-
-RUN apk --no-cache add maven
+FROM maven:3.9.5-amazoncorretto-17 AS build
 
 WORKDIR /app
 
 COPY pom.xml .
+COPY src ./src
 
-RUN mvn -B dependency:resolve dependency:resolve-plugins
+RUN mvn clean package -DskipTests
 
-COPY . .
+FROM openjdk:17-jdk-slim
 
-RUN mvn -B clean package
+COPY --from=build /app/target/transactionservice-0.0.1-SNAPSHOT.jar transactionservice.jar
 
 EXPOSE 8080
 
-CMD ["java", "-jar", "target/transactionservice-0.0.1-SNAPSHOT.jar"]
+ENTRYPOINT ["java", "-jar", "transactionservice.jar"]

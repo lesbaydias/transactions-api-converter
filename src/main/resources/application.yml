@@ -26,14 +26,14 @@ spring:
 
   flyway:
     enabled: true
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:transactions_db}
-    user: username
-    password: password
-    locations: classpath:db/transactions_db
+    url: jdbc:postgresql://postgres:${DB_PORT:5432}/${DB_NAME:transactions_db}
+    user: ${DB_USER:username}
+    password: ${DB_PASS:password}
+    locations: classpath:db/migration
     schemas: public
     baseline-on-migrate: true
 
-
 fixer:
   api:
-    key: 85ef2089fc68eb68f6319c7966457d86
+    key: ${FIXER_API_KEY:85ef2089fc68eb68f6319c7966457d86}
+
