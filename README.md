@@ -29,11 +29,10 @@
 3. Соберите и запустите контейнеры с помощью Docker Compose:
    ```bash
    docker-compose up --build
-
-
-   Эта команда:
-   - Сначала собирает образ вашего Java приложения.
-   - Запускает сервис transaction-service и базу данных PostgreSQL
+  
+  Эта команда:
+  - Сначала собирает образ вашего Java приложения.
+  - Запускает сервис transaction-service и базу данных PostgreSQL
 
 
 ## Документация API
