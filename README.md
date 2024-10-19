@@ -2,14 +2,17 @@
 
 ## Описание
 
-Этот проект представляет собой сервис для обработки транзакций с возможностью расчета расходов в USD на основе текущих или последних доступных курсов валют KZT/USD и RUB/USD. Курсы валют загружаются ежедневно с использованием API (например, Fixer API) и сохраняются в базе данных PostgreSQL.
-
+Этот проект представляет собой сервис для обработки транзакций с возможностью расчета расходов в долларах США (USD) на основе текущих или последних доступных курсов валют. В частности, поддерживаются курсы KZT/USD и RUB/USD. Курсы валют загружаются ежедневно с использованием внешнего API (например, Fixer API) и сохраняются в базе данных PostgreSQL для дальнейшего использования в расчетах. Flyway для миграции баз данных.
 ## Стек технологий
 - Java 17
 - Spring Boot 3.2.0
 - PostgreSQL
-- Docker
-- Docker Compose
+- JPA (Hibernate)
+- Flyway (for database migrations)
+- Fixer API (for currency exchange rates)
+- Docker and Docker Compose (for containerization)
+- @EnableScheduling (for periodic tasks)
+
   
 ## Запуск сервиса
 
@@ -34,6 +37,43 @@
   - Сначала собирает образ вашего Java приложения.
   - Запускает сервис transaction-service и базу данных PostgreSQL
 
+# API Endpoints
+## API транзакций
+Создайте транзакцию: POST /api/transactions/create
+
+В разделе Postman "Body"
+   ```bash
+{
+        "accountFrom": 1111111111,
+        "accountTo": 2222222222,
+        "currencyShortName": "KZT",
+        "sum": 150000.00,
+        "expenseCategoryType": "PRODUCT"
+    }
+
+
+## ОБЯЗАТЕЛЬНО:
+Если текущая дата выходная дата, то сервер должен отправить последнюю актуальную информацию о валюте. А если таковой информации не имеется то должен срабатывать exeption.
+
+
+## Client API
+1. Get Transactions Exceeding Limit: GET /api/limits/exceeded
+
+Returns transactions that have exceeded the set monthly limit.
+
+2. Set New Monthly Limit: POST /api/limits/set
+   ```bash
+{
+    "limitSum": 2000.00
+}
+Sets a new monthly spending limit.
+
+## Database Schema
+The application uses PostgreSQL and includes the following tables:
+
+limits: Stores monthly spending limits with the date they were set.
+transactions: Stores all transactions, including a flag (limit_exceeded) to indicate whether a transaction has exceeded the monthly limit.
+currency_rate: Caches exchange rates (KZT/USD, RUB/USD) to avoid frequent API calls.
 
 ## Объяснение решений
     - Выбор монолитной структуры: Мы решили использовать монолитную архитектуру для упрощения разработки и деплоя на начальных этапах проекта. Это упрощает взаимодействие между компонентами и позволяет быстрее разрабатывать и тестировать функционал.
