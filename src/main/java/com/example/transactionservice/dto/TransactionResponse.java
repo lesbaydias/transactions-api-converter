@@ -10,10 +10,11 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class TransactionResponse {
     private Long id;
-    private String accountFrom;
-    private String accountTo;
+    private Long accountFrom;
+    private Long accountTo;
     private String currencyShortName;
     private BigDecimal sum;
     private BigDecimal sumInUSD;

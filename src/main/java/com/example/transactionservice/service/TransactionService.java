@@ -4,7 +4,6 @@ import com.example.transactionservice.dto.TransactionRequest;
 import com.example.transactionservice.dto.TransactionResponse;
 import com.example.transactionservice.enums.TypesOfError;
 import com.example.transactionservice.exception.CustomException;
-import com.example.transactionservice.mapper.TransactionMapper;
 import com.example.transactionservice.model.Limit;
 import com.example.transactionservice.model.Transaction;
 import com.example.transactionservice.repository.TransactionRepository;
@@ -25,7 +24,6 @@ public class TransactionService {
     private final TransactionRepository transactionRepository;
     private final LimitService limitService;
     private final CurrencyService currencyService;
-    private final TransactionMapper transactionMapper;
 
     @Transactional
     public TransactionResponse processTransaction(TransactionRequest transactionRequest) {
@@ -38,7 +36,18 @@ public class TransactionService {
         Transaction transaction = createTransaction(transactionRequest, transactionSumInUSD, isLimitExceeded);
 
         transactionRepository.save(transaction);
-        return transactionMapper.toResponse(transaction);
+
+        return TransactionResponse.builder()
+                .id(transaction.getId())
+                .sum(transaction.getSum())
+                .accountFrom(transaction.getAccountFrom())
+                .currencyShortName(transaction.getCurrencyShortName())
+                .accountTo(transaction.getAccountTo())
+                .dateTime(transaction.getDateTime())
+                .expenseCategoryType(transaction.getExpenseCategoryType())
+                .sumInUSD(transaction.getSumInUSD())
+                .limitExceeded(transaction.isLimitExceeded())
+                .build();
     }
 
     private BigDecimal convertToUSD(TransactionRequest transactionRequest) {
@@ -60,7 +69,15 @@ public class TransactionService {
     }
 
     private Transaction createTransaction(TransactionRequest transactionRequest, BigDecimal sumInUSD, boolean limitExceeded) {
-        Transaction transaction = transactionMapper.toEntity(transactionRequest);
+        Transaction transaction = Transaction.builder()
+                .accountFrom(transactionRequest.getAccountFrom())
+                .accountTo(transactionRequest.getAccountTo())
+                .currencyShortName(transactionRequest.getCurrencyShortName())
+                .dateTime(transactionRequest.getDateTime())
+                .expenseCategoryType(transactionRequest.getExpenseCategoryType())
+                .sum(transactionRequest.getSum())
+                .build();
+
         transaction.setSumInUSD(sumInUSD);
         transaction.setLimitExceeded(limitExceeded);
         transaction.setDateTime(LocalDateTime.now());

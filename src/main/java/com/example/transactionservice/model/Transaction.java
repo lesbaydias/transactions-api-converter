@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 @Table(name = "transactions")
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Getter
 @Setter
 public class Transaction {

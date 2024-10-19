@@ -20,7 +20,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(CustomException.class)
     public ResponseEntity<Object> handleException(CustomException ex, WebRequest request) {
         request.getHeaderNames();
-
         TypesOfError typesOfError = new TypesOfError(new Date(), ex.getMessage(), ex.getStatus());
         return new ResponseEntity<>(typesOfError,new HttpHeaders(), ex.getStatus());
     }
