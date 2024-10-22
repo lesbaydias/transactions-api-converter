@@ -52,8 +52,8 @@ public class CurrencyService {
             String baseCurrency = currencies[0];
             String quoteCurrency = currencies[1];
             String url = buildApiUrl(baseCurrency, quoteCurrency);
-
             ResponseEntity<Map> response = restTemplate.getForEntity(url, Map.class);
+
             return parseApiResponse(response, baseCurrency, quoteCurrency);
         } catch (Exception e) {
             // Error when requesting to API
